@@ -27,31 +27,51 @@ const ETAAdPlan = () => {
         };
     };
 
+    // Duration labels helper
+    const getDurationLabel = () => {
+        switch (planDuration) {
+            case 'weekly': return 'أسبوعيًا';
+            case 'monthly': return 'شهريًا';
+            case 'threeMonths': return 'لـ 3 شهور';
+            default: return 'شهريًا';
+        }
+    };
+
+    const getDurationDays = () => {
+        switch (planDuration) {
+            case 'weekly': return 7;
+            case 'monthly': return 30;
+            case 'threeMonths': return 90;
+            default: return 30;
+        }
+    };
+
     // Pricing calculation
     const calculatePricing = () => {
         const postPrice = 150;
         const reelPrice = 150;
-        const managementPricePerHour = 150; // 1000-1500 per 8 hours = ~125-187.5 per hour
         const contentCreationMin = 3000;
         const contentCreationMax = 4000;
-
-        const durationMultiplier = planDuration === 'weekly' ? 1 : planDuration === 'monthly' ? 4 : 12;
+        const managementMinPerDay = (managementHours / 8) * 1000;
+        const managementMaxPerDay = (managementHours / 8) * 1500;
+        const days = getDurationDays();
 
         const postsTotal = postsCount * postPrice;
         const reelsTotal = reelsCount * reelPrice;
-        const managementTotal = (managementHours / 8) * 1250; // Average of 1000-1500
+        const managementMinTotal = managementMinPerDay * days;
+        const managementMaxTotal = managementMaxPerDay * days;
         const contentCreation = includeContentCreation ? (contentCreationMin + contentCreationMax) / 2 : 0;
-
-        const subtotal = postsTotal + reelsTotal + managementTotal + contentCreation;
 
         return {
             postsTotal,
             reelsTotal,
-            managementTotal,
-            contentCreation,
-            subtotal,
-            minTotal: postsTotal + reelsTotal + (managementHours / 8) * 1000 + (includeContentCreation ? contentCreationMin : 0),
-            maxTotal: postsTotal + reelsTotal + (managementHours / 8) * 1500 + (includeContentCreation ? contentCreationMax : 0)
+            managementMinTotal,
+            managementMaxTotal,
+            contentCreationMin: includeContentCreation ? contentCreationMin : 0,
+            contentCreationMax: includeContentCreation ? contentCreationMax : 0,
+            minTotal: postsTotal + reelsTotal + managementMinTotal + (includeContentCreation ? contentCreationMin : 0),
+            maxTotal: postsTotal + reelsTotal + managementMaxTotal + (includeContentCreation ? contentCreationMax : 0),
+            days
         };
     };
 
@@ -471,20 +491,20 @@ const ETAAdPlan = () => {
                                             المنشورات
                                         </h4>
                                         <div className="mb-4">
-                                            <label className="text-white block mb-2">عدد المنشورات شهريًا:</label>
+                                            <label className="text-white block mb-2">عدد المنشورات {getDurationLabel()}:</label>
                                             <input
                                                 type="number"
                                                 min="1"
-                                                max="60"
+                                                max="100"
                                                 value={postsCount}
                                                 onChange={(e) => setPostsCount(Number(e.target.value))}
                                                 className="w-full p-3 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-blue-400"
                                             />
-                                            <p className="text-blue-200 text-sm mt-2">الحد الأدنى الموصى به: 20 منشور/شهر</p>
+                                            <p className="text-blue-200 text-sm mt-2">الحد الأدنى الموصى به: {planDuration === 'weekly' ? 5 : planDuration === 'monthly' ? 20 : 60} منشور</p>
                                         </div>
                                         <div className="bg-blue-900/30 p-3 rounded-lg">
                                             <p className="text-white text-lg font-bold">150 ج.م / منشور</p>
-                                            <p className="text-blue-200 text-sm">الإجمالي: {pricing.postsTotal} ج.م</p>
+                                            <p className="text-blue-200 text-sm">الإجمالي {getDurationLabel()}: {pricing.postsTotal} ج.م</p>
                                         </div>
                                     </div>
 
@@ -495,11 +515,11 @@ const ETAAdPlan = () => {
                                             الريلز
                                         </h4>
                                         <div className="mb-4">
-                                            <label className="text-white block mb-2">عدد الريلز شهريًا:</label>
+                                            <label className="text-white block mb-2">عدد الريلز {getDurationLabel()}:</label>
                                             <input
                                                 type="number"
                                                 min="0"
-                                                max="30"
+                                                max="50"
                                                 value={reelsCount}
                                                 onChange={(e) => setReelsCount(Number(e.target.value))}
                                                 className="w-full p-3 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-pink-400"
@@ -508,45 +528,39 @@ const ETAAdPlan = () => {
                                         </div>
                                         <div className="bg-pink-900/30 p-3 rounded-lg">
                                             <p className="text-white text-lg font-bold">150 ج.م / ريل</p>
-                                            <p className="text-pink-200 text-sm">الإجمالي: {pricing.reelsTotal} ج.م</p>
+                                            <p className="text-pink-200 text-sm">الإجمالي {getDurationLabel()}: {pricing.reelsTotal} ج.م</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Total Summary */}
                                 <div className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 p-6 rounded-lg border border-yellow-400/30">
-                                    <h4 className="font-bold text-white text-xl mb-4">📊 ملخص التكلفة الشهرية</h4>
+                                    <h4 className="font-bold text-white text-xl mb-4">📊 ملخص التكلفة {getDurationLabel()}</h4>
                                     <div className="space-y-3">
                                         {includeContentCreation && (
                                             <div className="flex justify-between text-white">
                                                 <span>صناعة المحتوى:</span>
-                                                <span>3,000 - 4,000 ج.م</span>
+                                                <span>{pricing.contentCreationMin.toLocaleString()} - {pricing.contentCreationMax.toLocaleString()} ج.م</span>
                                             </div>
                                         )}
                                         <div className="flex justify-between text-white">
-                                            <span>إدارة الصفحة ({managementHours} ساعات/يوم):</span>
-                                            <span>{((managementHours / 8) * 1000).toFixed(0)} - {((managementHours / 8) * 1500).toFixed(0)} ج.م/يوم</span>
+                                            <span>إدارة الصفحة ({managementHours} ساعات/يوم × {pricing.days} يوم):</span>
+                                            <span>{pricing.managementMinTotal.toLocaleString()} - {pricing.managementMaxTotal.toLocaleString()} ج.م</span>
                                         </div>
                                         <div className="flex justify-between text-white">
                                             <span>المنشورات ({postsCount} منشور):</span>
-                                            <span>{pricing.postsTotal} ج.م</span>
+                                            <span>{pricing.postsTotal.toLocaleString()} ج.م</span>
                                         </div>
                                         <div className="flex justify-between text-white">
                                             <span>الريلز ({reelsCount} ريل):</span>
-                                            <span>{pricing.reelsTotal} ج.م</span>
+                                            <span>{pricing.reelsTotal.toLocaleString()} ج.م</span>
                                         </div>
                                         <hr className="border-white/20" />
                                         <div className="flex justify-between text-white text-xl font-bold">
-                                            <span>الإجمالي:</span>
-                                            <span className="text-yellow-300">{pricing.minTotal.toFixed(0)} - {pricing.maxTotal.toFixed(0)} ج.م</span>
+                                            <span>الإجمالي {getDurationLabel()}:</span>
+                                            <span className="text-yellow-300">{pricing.minTotal.toLocaleString()} - {pricing.maxTotal.toLocaleString()} ج.م</span>
                                         </div>
                                     </div>
-
-                                    {planDuration === 'threeMonths' && (
-                                        <div className="mt-4 bg-green-600/30 p-3 rounded-lg">
-                                            <p className="text-green-200 text-sm">💡 للاشتراك لـ 3 شهور: {(pricing.minTotal * 3).toFixed(0)} - {(pricing.maxTotal * 3).toFixed(0)} ج.م</p>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         )}
