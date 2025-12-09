@@ -54,24 +54,19 @@ const ETAAdPlan = () => {
         const contentCreationMax = 4000;
         const managementMinPerDay = (managementHours / 8) * 1000;
         const managementMaxPerDay = (managementHours / 8) * 1500;
-        const days = getDurationDays();
 
         const postsTotal = postsCount * postPrice;
         const reelsTotal = reelsCount * reelPrice;
-        const managementMinTotal = managementMinPerDay * days;
-        const managementMaxTotal = managementMaxPerDay * days;
-        const contentCreation = includeContentCreation ? (contentCreationMin + contentCreationMax) / 2 : 0;
 
         return {
             postsTotal,
             reelsTotal,
-            managementMinTotal,
-            managementMaxTotal,
+            managementMinPerDay,
+            managementMaxPerDay,
             contentCreationMin: includeContentCreation ? contentCreationMin : 0,
             contentCreationMax: includeContentCreation ? contentCreationMax : 0,
-            minTotal: postsTotal + reelsTotal + managementMinTotal + (includeContentCreation ? contentCreationMin : 0),
-            maxTotal: postsTotal + reelsTotal + managementMaxTotal + (includeContentCreation ? contentCreationMax : 0),
-            days
+            minTotal: postsTotal + reelsTotal + managementMinPerDay + (includeContentCreation ? contentCreationMin : 0),
+            maxTotal: postsTotal + reelsTotal + managementMaxPerDay + (includeContentCreation ? contentCreationMax : 0)
         };
     };
 
@@ -544,8 +539,8 @@ const ETAAdPlan = () => {
                                             </div>
                                         )}
                                         <div className="flex justify-between text-white">
-                                            <span>إدارة الصفحة ({managementHours} ساعات/يوم × {pricing.days} يوم):</span>
-                                            <span>{pricing.managementMinTotal.toLocaleString()} - {pricing.managementMaxTotal.toLocaleString()} ج.م</span>
+                                            <span>إدارة الصفحة ({managementHours} ساعات/يوم):</span>
+                                            <span>{pricing.managementMinPerDay.toLocaleString()} - {pricing.managementMaxPerDay.toLocaleString()} ج.م/يوم</span>
                                         </div>
                                         <div className="flex justify-between text-white">
                                             <span>المنشورات ({postsCount} منشور):</span>
