@@ -48,12 +48,12 @@ const ETAAdPlan = () => {
 
     // Pricing calculation
     const calculatePricing = () => {
-        const postPrice = 150;
-        const reelPrice = 150;
-        const contentCreationMin = 3000;
-        const contentCreationMax = 4000;
-        const managementMinPerDay = (managementHours / 8) * 1000;
-        const managementMaxPerDay = (managementHours / 8) * 1500;
+        const postPrice = 250;
+        const reelPrice = 250;
+        const contentCreationMin = 5000;
+        const contentCreationMax = 7000;
+        const managementMinPerDay = (managementHours / 8) * 2000;
+        const managementMaxPerDay = (managementHours / 8) * 3000;
 
         const postsTotal = postsCount * postPrice;
         const reelsTotal = reelsCount * reelPrice;
