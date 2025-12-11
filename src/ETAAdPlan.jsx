@@ -443,7 +443,7 @@ const ETAAdPlan = () => {
                                         </div>
                                     </div>
                                     <div className="bg-purple-900/30 p-3 rounded-lg">
-                                        <p className="text-white text-lg font-bold">3,000 - 4,000 ج.م</p>
+                                        <p className="text-white text-lg font-bold">5,000 - 7,000 ج.م</p>
                                         <p className="text-purple-200 text-sm">شامل جميع خدمات صناعة المحتوى</p>
                                     </div>
                                 </div>
@@ -472,7 +472,7 @@ const ETAAdPlan = () => {
                                         </div>
                                     </div>
                                     <div className="bg-green-900/30 p-3 rounded-lg">
-                                        <p className="text-white text-lg font-bold">1,000 - 1,500 ج.م / 8 ساعات يوميًا</p>
+                                        <p className="text-white text-lg font-bold">2,000 - 3,000 ج.م / 8 ساعات يوميًا</p>
                                         <p className="text-green-200 text-sm">الرد على الرسائل والتعليقات وإدارة الصفحة (يوميًا)</p>
                                     </div>
                                 </div>
@@ -498,7 +498,7 @@ const ETAAdPlan = () => {
                                             <p className="text-blue-200 text-sm mt-2">الحد الأدنى الموصى به: {planDuration === 'weekly' ? 5 : planDuration === 'monthly' ? 20 : 60} منشور</p>
                                         </div>
                                         <div className="bg-blue-900/30 p-3 rounded-lg">
-                                            <p className="text-white text-lg font-bold">150 ج.م / منشور</p>
+                                            <p className="text-white text-lg font-bold">250 ج.م / منشور</p>
                                             <p className="text-blue-200 text-sm">الإجمالي {getDurationLabel()}: {pricing.postsTotal} ج.م</p>
                                         </div>
                                     </div>
@@ -522,7 +522,7 @@ const ETAAdPlan = () => {
                                             <p className="text-pink-200 text-sm mt-2">مقاطع فيديو قصيرة جذابة</p>
                                         </div>
                                         <div className="bg-pink-900/30 p-3 rounded-lg">
-                                            <p className="text-white text-lg font-bold">150 ج.م / ريل</p>
+                                            <p className="text-white text-lg font-bold">250 ج.م / ريل</p>
                                             <p className="text-pink-200 text-sm">الإجمالي {getDurationLabel()}: {pricing.reelsTotal} ج.م</p>
                                         </div>
                                     </div>
