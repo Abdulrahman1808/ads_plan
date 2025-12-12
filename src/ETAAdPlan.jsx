@@ -11,7 +11,6 @@ const ETAAdPlan = () => {
     const [selectedPackage, setSelectedPackage] = useState('basic'); // basic, standard, premium
     const [postsCount, setPostsCount] = useState(20);
     const [reelsCount, setReelsCount] = useState(8);
-    const [includeContentCreation, setIncludeContentCreation] = useState(true);
 
     // Pricing packages (without management)
     const packages = {
@@ -58,8 +57,6 @@ const ETAAdPlan = () => {
     const calculatePricing = () => {
         const postPrice = 250;
         const reelPrice = 250;
-        const contentCreationMin = 5000;
-        const contentCreationMax = 7000;
         const managementPrice = 5000; // Fixed 5000 EGP/month for 8 hours/day
 
         if (includeManagement) {
@@ -70,10 +67,8 @@ const ETAAdPlan = () => {
                 postsTotal,
                 reelsTotal,
                 managementPrice,
-                contentCreationMin: includeContentCreation ? contentCreationMin : 0,
-                contentCreationMax: includeContentCreation ? contentCreationMax : 0,
-                minTotal: postsTotal + reelsTotal + managementPrice + (includeContentCreation ? contentCreationMin : 0),
-                maxTotal: postsTotal + reelsTotal + managementPrice + (includeContentCreation ? contentCreationMax : 0),
+                minTotal: postsTotal + reelsTotal + managementPrice,
+                maxTotal: postsTotal + reelsTotal + managementPrice,
                 isPackage: false
             };
         } else {
@@ -83,10 +78,8 @@ const ETAAdPlan = () => {
                 packagePrice: pkg.price,
                 postsIncluded: pkg.posts,
                 reelsIncluded: pkg.reels,
-                contentCreationMin: includeContentCreation ? contentCreationMin : 0,
-                contentCreationMax: includeContentCreation ? contentCreationMax : 0,
-                minTotal: pkg.price + (includeContentCreation ? contentCreationMin : 0),
-                maxTotal: pkg.price + (includeContentCreation ? contentCreationMax : 0),
+                minTotal: pkg.price,
+                maxTotal: pkg.price,
                 isPackage: true
             };
         }
@@ -427,48 +420,6 @@ const ETAAdPlan = () => {
                                     </div>
                                 </div>
 
-                                {/* Content Creation Package */}
-                                <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-5 rounded-lg border border-purple-400/30">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h4 className="font-bold text-white flex items-center gap-2">
-                                            <Package className="w-5 h-5 text-purple-400" />
-                                            باقة صناعة المحتوى
-                                        </h4>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={includeContentCreation}
-                                                onChange={(e) => setIncludeContentCreation(e.target.checked)}
-                                                className="w-5 h-5 rounded"
-                                            />
-                                            <span className="text-white">تفعيل</span>
-                                        </label>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                        <div className="bg-white/10 p-3 rounded-lg">
-                                            <p className="text-purple-200 text-sm flex items-center gap-2">
-                                                <FileText className="w-4 h-4" />
-                                                كتابة المنشورات
-                                            </p>
-                                        </div>
-                                        <div className="bg-white/10 p-3 rounded-lg">
-                                            <p className="text-purple-200 text-sm flex items-center gap-2">
-                                                <Image className="w-4 h-4" />
-                                                تصميم الصور
-                                            </p>
-                                        </div>
-                                        <div className="bg-white/10 p-3 rounded-lg">
-                                            <p className="text-purple-200 text-sm flex items-center gap-2">
-                                                <Video className="w-4 h-4" />
-                                                إنتاج الريلز
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="bg-purple-900/30 p-3 rounded-lg">
-                                        <p className="text-white text-lg font-bold">5,000 - 7,000 ج.م</p>
-                                        <p className="text-purple-200 text-sm">شامل جميع خدمات صناعة المحتوى</p>
-                                    </div>
-                                </div>
 
                                 {/* Page Management Toggle */}
                                 <div className="bg-gradient-to-r from-green-600/20 to-teal-600/20 p-5 rounded-lg border border-green-400/30">
@@ -511,8 +462,8 @@ const ETAAdPlan = () => {
                                             <div
                                                 onClick={() => setSelectedPackage('basic')}
                                                 className={`cursor-pointer p-6 rounded-xl transition-all duration-300 ${selectedPackage === 'basic'
-                                                        ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-400 scale-105 shadow-lg shadow-blue-500/30'
-                                                        : 'bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 hover:border-blue-400/50'
+                                                    ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-400 scale-105 shadow-lg shadow-blue-500/30'
+                                                    : 'bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 hover:border-blue-400/50'
                                                     }`}
                                             >
                                                 <h5 className="text-xl font-bold text-white mb-2">الباقة الأساسية</h5>
@@ -536,8 +487,8 @@ const ETAAdPlan = () => {
                                             <div
                                                 onClick={() => setSelectedPackage('standard')}
                                                 className={`cursor-pointer p-6 rounded-xl transition-all duration-300 relative ${selectedPackage === 'standard'
-                                                        ? 'bg-gradient-to-br from-purple-600 to-purple-800 border-2 border-purple-400 scale-105 shadow-lg shadow-purple-500/30'
-                                                        : 'bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 hover:border-purple-400/50'
+                                                    ? 'bg-gradient-to-br from-purple-600 to-purple-800 border-2 border-purple-400 scale-105 shadow-lg shadow-purple-500/30'
+                                                    : 'bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 hover:border-purple-400/50'
                                                     }`}
                                             >
                                                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white text-xs px-3 py-1 rounded-full">الأكثر شيوعًا</div>
@@ -562,8 +513,8 @@ const ETAAdPlan = () => {
                                             <div
                                                 onClick={() => setSelectedPackage('premium')}
                                                 className={`cursor-pointer p-6 rounded-xl transition-all duration-300 ${selectedPackage === 'premium'
-                                                        ? 'bg-gradient-to-br from-yellow-600 to-orange-700 border-2 border-yellow-400 scale-105 shadow-lg shadow-yellow-500/30'
-                                                        : 'bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 hover:border-yellow-400/50'
+                                                    ? 'bg-gradient-to-br from-yellow-600 to-orange-700 border-2 border-yellow-400 scale-105 shadow-lg shadow-yellow-500/30'
+                                                    : 'bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 hover:border-yellow-400/50'
                                                     }`}
                                             >
                                                 <h5 className="text-xl font-bold text-white mb-2">الباقة الاحترافية</h5>
@@ -639,12 +590,6 @@ const ETAAdPlan = () => {
                                 <div className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 p-6 rounded-lg border border-yellow-400/30">
                                     <h4 className="font-bold text-white text-xl mb-4">📊 ملخص التكلفة الشهرية</h4>
                                     <div className="space-y-3">
-                                        {includeContentCreation && (
-                                            <div className="flex justify-between text-white">
-                                                <span>صناعة المحتوى:</span>
-                                                <span>{pricing.contentCreationMin?.toLocaleString()} - {pricing.contentCreationMax?.toLocaleString()} ج.م</span>
-                                            </div>
-                                        )}
                                         {includeManagement && (
                                             <div className="flex justify-between text-white">
                                                 <span>إدارة الصفحة (8 ساعات/يوم):</span>
