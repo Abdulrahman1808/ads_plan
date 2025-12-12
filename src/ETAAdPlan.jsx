@@ -7,10 +7,18 @@ const ETAAdPlan = () => {
 
     // Pricing calculator state
     const [planDuration, setPlanDuration] = useState('monthly'); // weekly, monthly, threeMonths
+    const [includeManagement, setIncludeManagement] = useState(false);
+    const [selectedPackage, setSelectedPackage] = useState('basic'); // basic, standard, premium
     const [postsCount, setPostsCount] = useState(20);
     const [reelsCount, setReelsCount] = useState(8);
-    const [managementHours, setManagementHours] = useState(8);
     const [includeContentCreation, setIncludeContentCreation] = useState(true);
+
+    // Pricing packages (without management)
+    const packages = {
+        basic: { name: 'الباقة الأساسية', posts: 8, reels: 2, price: 4000, color: 'blue' },
+        standard: { name: 'الباقة المميزة', posts: 16, reels: 4, price: 6000, color: 'purple' },
+        premium: { name: 'الباقة الاحترافية', posts: 20, reels: 10, price: 8000, color: 'yellow' }
+    };
 
     const calculateBreakdown = (totalBudget) => {
         const agencyCommission = totalBudget * 0.20;
@@ -52,22 +60,36 @@ const ETAAdPlan = () => {
         const reelPrice = 250;
         const contentCreationMin = 5000;
         const contentCreationMax = 7000;
-        const managementMinPerDay = (managementHours / 8) * 2000;
-        const managementMaxPerDay = (managementHours / 8) * 3000;
+        const managementPrice = 5000; // Fixed 5000 EGP/month for 8 hours/day
 
-        const postsTotal = postsCount * postPrice;
-        const reelsTotal = reelsCount * reelPrice;
-
-        return {
-            postsTotal,
-            reelsTotal,
-            managementMinPerDay,
-            managementMaxPerDay,
-            contentCreationMin: includeContentCreation ? contentCreationMin : 0,
-            contentCreationMax: includeContentCreation ? contentCreationMax : 0,
-            minTotal: postsTotal + reelsTotal + managementMinPerDay + (includeContentCreation ? contentCreationMin : 0),
-            maxTotal: postsTotal + reelsTotal + managementMaxPerDay + (includeContentCreation ? contentCreationMax : 0)
-        };
+        if (includeManagement) {
+            // Per-item pricing when management is enabled
+            const postsTotal = postsCount * postPrice;
+            const reelsTotal = reelsCount * reelPrice;
+            return {
+                postsTotal,
+                reelsTotal,
+                managementPrice,
+                contentCreationMin: includeContentCreation ? contentCreationMin : 0,
+                contentCreationMax: includeContentCreation ? contentCreationMax : 0,
+                minTotal: postsTotal + reelsTotal + managementPrice + (includeContentCreation ? contentCreationMin : 0),
+                maxTotal: postsTotal + reelsTotal + managementPrice + (includeContentCreation ? contentCreationMax : 0),
+                isPackage: false
+            };
+        } else {
+            // Fixed package pricing when no management
+            const pkg = packages[selectedPackage];
+            return {
+                packagePrice: pkg.price,
+                postsIncluded: pkg.posts,
+                reelsIncluded: pkg.reels,
+                contentCreationMin: includeContentCreation ? contentCreationMin : 0,
+                contentCreationMax: includeContentCreation ? contentCreationMax : 0,
+                minTotal: pkg.price + (includeContentCreation ? contentCreationMin : 0),
+                maxTotal: pkg.price + (includeContentCreation ? contentCreationMax : 0),
+                isPackage: true
+            };
+        }
     };
 
     const pricing = calculatePricing();
@@ -448,112 +470,208 @@ const ETAAdPlan = () => {
                                     </div>
                                 </div>
 
-                                {/* Page Management */}
+                                {/* Page Management Toggle */}
                                 <div className="bg-gradient-to-r from-green-600/20 to-teal-600/20 p-5 rounded-lg border border-green-400/30">
-                                    <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                                        <MessageSquare className="w-5 h-5 text-green-400" />
-                                        إدارة الصفحة والرد على الرسائل
-                                    </h4>
-                                    <div className="mb-4">
-                                        <label className="text-white block mb-2">عدد ساعات العمل يوميًا:</label>
-                                        <input
-                                            type="range"
-                                            min="4"
-                                            max="24"
-                                            step="4"
-                                            value={managementHours}
-                                            onChange={(e) => setManagementHours(Number(e.target.value))}
-                                            className="w-full"
-                                        />
-                                        <div className="flex justify-between text-green-200 text-sm mt-2">
-                                            <span>4 ساعات/يوم</span>
-                                            <span className="font-bold text-white text-lg">{managementHours} ساعات/يوم</span>
-                                            <span>24 ساعة/يوم</span>
-                                        </div>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h4 className="font-bold text-white flex items-center gap-2">
+                                            <MessageSquare className="w-5 h-5 text-green-400" />
+                                            إدارة الصفحة والرد على الرسائل
+                                        </h4>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={includeManagement}
+                                                onChange={(e) => setIncludeManagement(e.target.checked)}
+                                                className="w-5 h-5 rounded"
+                                            />
+                                            <span className="text-white">تفعيل</span>
+                                        </label>
                                     </div>
                                     <div className="bg-green-900/30 p-3 rounded-lg">
-                                        <p className="text-white text-lg font-bold">2,000 - 3,000 ج.م / 8 ساعات يوميًا</p>
-                                        <p className="text-green-200 text-sm">الرد على الرسائل والتعليقات وإدارة الصفحة (يوميًا)</p>
+                                        <p className="text-white text-lg font-bold">5,000 ج.م / شهريًا</p>
+                                        <p className="text-green-200 text-sm">8 ساعات يوميًا - الرد على الرسائل والتعليقات وإدارة الصفحة</p>
                                     </div>
+                                    {includeManagement && (
+                                        <div className="mt-4 bg-green-500/20 p-3 rounded-lg border border-green-400/50">
+                                            <p className="text-green-100 text-sm">✓ عند تفعيل الإدارة، يمكنك تحديد عدد المنشورات والريلز بشكل مخصص (250 ج.م لكل منهما)</p>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Individual Posts & Reels */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Posts */}
-                                    <div className="bg-gradient-to-r from-blue-600/20 to-indigo-600/20 p-5 rounded-lg border border-blue-400/30">
-                                        <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                                            <Image className="w-5 h-5 text-blue-400" />
-                                            المنشورات
+                                {/* Pricing Packages or Per-Item Selection */}
+                                {!includeManagement ? (
+                                    /* Package Cards - Hostinger Style */
+                                    <div className="space-y-4">
+                                        <h4 className="font-bold text-white text-xl flex items-center gap-2">
+                                            <Package className="w-6 h-6 text-purple-400" />
+                                            اختر باقتك الشهرية
                                         </h4>
-                                        <div className="mb-4">
-                                            <label className="text-white block mb-2">عدد المنشورات {getDurationLabel()}:</label>
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                max="100"
-                                                value={postsCount}
-                                                onChange={(e) => setPostsCount(Number(e.target.value))}
-                                                className="w-full p-3 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-blue-400"
-                                            />
-                                            <p className="text-blue-200 text-sm mt-2">الحد الأدنى الموصى به: {planDuration === 'weekly' ? 5 : planDuration === 'monthly' ? 20 : 60} منشور</p>
-                                        </div>
-                                        <div className="bg-blue-900/30 p-3 rounded-lg">
-                                            <p className="text-white text-lg font-bold">250 ج.م / منشور</p>
-                                            <p className="text-blue-200 text-sm">الإجمالي {getDurationLabel()}: {pricing.postsTotal} ج.م</p>
-                                        </div>
-                                    </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            {/* Basic Package */}
+                                            <div
+                                                onClick={() => setSelectedPackage('basic')}
+                                                className={`cursor-pointer p-6 rounded-xl transition-all duration-300 ${selectedPackage === 'basic'
+                                                        ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-400 scale-105 shadow-lg shadow-blue-500/30'
+                                                        : 'bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 hover:border-blue-400/50'
+                                                    }`}
+                                            >
+                                                <h5 className="text-xl font-bold text-white mb-2">الباقة الأساسية</h5>
+                                                <div className="text-3xl font-bold text-blue-300 mb-4">4,000 <span className="text-lg">ج.م</span></div>
+                                                <ul className="space-y-2 text-white/90">
+                                                    <li className="flex items-center gap-2">
+                                                        <Image className="w-4 h-4 text-blue-400" />
+                                                        <span>8 منشورات/شهر</span>
+                                                    </li>
+                                                    <li className="flex items-center gap-2">
+                                                        <Video className="w-4 h-4 text-blue-400" />
+                                                        <span>2 ريلز/شهر</span>
+                                                    </li>
+                                                </ul>
+                                                {selectedPackage === 'basic' && (
+                                                    <div className="mt-4 text-center text-blue-200 font-bold">✓ محددة</div>
+                                                )}
+                                            </div>
 
-                                    {/* Reels */}
-                                    <div className="bg-gradient-to-r from-pink-600/20 to-red-600/20 p-5 rounded-lg border border-pink-400/30">
-                                        <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                                            <Video className="w-5 h-5 text-pink-400" />
-                                            الريلز
-                                        </h4>
-                                        <div className="mb-4">
-                                            <label className="text-white block mb-2">عدد الريلز {getDurationLabel()}:</label>
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                max="50"
-                                                value={reelsCount}
-                                                onChange={(e) => setReelsCount(Number(e.target.value))}
-                                                className="w-full p-3 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-pink-400"
-                                            />
-                                            <p className="text-pink-200 text-sm mt-2">مقاطع فيديو قصيرة جذابة</p>
-                                        </div>
-                                        <div className="bg-pink-900/30 p-3 rounded-lg">
-                                            <p className="text-white text-lg font-bold">250 ج.م / ريل</p>
-                                            <p className="text-pink-200 text-sm">الإجمالي {getDurationLabel()}: {pricing.reelsTotal} ج.م</p>
+                                            {/* Standard Package */}
+                                            <div
+                                                onClick={() => setSelectedPackage('standard')}
+                                                className={`cursor-pointer p-6 rounded-xl transition-all duration-300 relative ${selectedPackage === 'standard'
+                                                        ? 'bg-gradient-to-br from-purple-600 to-purple-800 border-2 border-purple-400 scale-105 shadow-lg shadow-purple-500/30'
+                                                        : 'bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 hover:border-purple-400/50'
+                                                    }`}
+                                            >
+                                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white text-xs px-3 py-1 rounded-full">الأكثر شيوعًا</div>
+                                                <h5 className="text-xl font-bold text-white mb-2">الباقة المميزة</h5>
+                                                <div className="text-3xl font-bold text-purple-300 mb-4">6,000 <span className="text-lg">ج.م</span></div>
+                                                <ul className="space-y-2 text-white/90">
+                                                    <li className="flex items-center gap-2">
+                                                        <Image className="w-4 h-4 text-purple-400" />
+                                                        <span>16 منشورات/شهر</span>
+                                                    </li>
+                                                    <li className="flex items-center gap-2">
+                                                        <Video className="w-4 h-4 text-purple-400" />
+                                                        <span>4 ريلز/شهر</span>
+                                                    </li>
+                                                </ul>
+                                                {selectedPackage === 'standard' && (
+                                                    <div className="mt-4 text-center text-purple-200 font-bold">✓ محددة</div>
+                                                )}
+                                            </div>
+
+                                            {/* Premium Package */}
+                                            <div
+                                                onClick={() => setSelectedPackage('premium')}
+                                                className={`cursor-pointer p-6 rounded-xl transition-all duration-300 ${selectedPackage === 'premium'
+                                                        ? 'bg-gradient-to-br from-yellow-600 to-orange-700 border-2 border-yellow-400 scale-105 shadow-lg shadow-yellow-500/30'
+                                                        : 'bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 hover:border-yellow-400/50'
+                                                    }`}
+                                            >
+                                                <h5 className="text-xl font-bold text-white mb-2">الباقة الاحترافية</h5>
+                                                <div className="text-3xl font-bold text-yellow-300 mb-4">8,000 <span className="text-lg">ج.م</span></div>
+                                                <ul className="space-y-2 text-white/90">
+                                                    <li className="flex items-center gap-2">
+                                                        <Image className="w-4 h-4 text-yellow-400" />
+                                                        <span>20 منشورات/شهر</span>
+                                                    </li>
+                                                    <li className="flex items-center gap-2">
+                                                        <Video className="w-4 h-4 text-yellow-400" />
+                                                        <span>10 ريلز/شهر</span>
+                                                    </li>
+                                                </ul>
+                                                {selectedPackage === 'premium' && (
+                                                    <div className="mt-4 text-center text-yellow-200 font-bold">✓ محددة</div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    /* Per-Item Pricing - When Management is ON */
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* Posts */}
+                                        <div className="bg-gradient-to-r from-blue-600/20 to-indigo-600/20 p-5 rounded-lg border border-blue-400/30">
+                                            <h4 className="font-bold text-white mb-4 flex items-center gap-2">
+                                                <Image className="w-5 h-5 text-blue-400" />
+                                                المنشورات
+                                            </h4>
+                                            <div className="mb-4">
+                                                <label className="text-white block mb-2">عدد المنشورات شهريًا:</label>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max="100"
+                                                    value={postsCount}
+                                                    onChange={(e) => setPostsCount(Number(e.target.value))}
+                                                    className="w-full p-3 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-blue-400"
+                                                />
+                                            </div>
+                                            <div className="bg-blue-900/30 p-3 rounded-lg">
+                                                <p className="text-white text-lg font-bold">250 ج.م / منشور</p>
+                                                <p className="text-blue-200 text-sm">الإجمالي: {pricing.postsTotal?.toLocaleString()} ج.م</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Reels */}
+                                        <div className="bg-gradient-to-r from-pink-600/20 to-red-600/20 p-5 rounded-lg border border-pink-400/30">
+                                            <h4 className="font-bold text-white mb-4 flex items-center gap-2">
+                                                <Video className="w-5 h-5 text-pink-400" />
+                                                الريلز
+                                            </h4>
+                                            <div className="mb-4">
+                                                <label className="text-white block mb-2">عدد الريلز شهريًا:</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    max="50"
+                                                    value={reelsCount}
+                                                    onChange={(e) => setReelsCount(Number(e.target.value))}
+                                                    className="w-full p-3 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-pink-400"
+                                                />
+                                            </div>
+                                            <div className="bg-pink-900/30 p-3 rounded-lg">
+                                                <p className="text-white text-lg font-bold">250 ج.م / ريل</p>
+                                                <p className="text-pink-200 text-sm">الإجمالي: {pricing.reelsTotal?.toLocaleString()} ج.م</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Total Summary */}
                                 <div className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 p-6 rounded-lg border border-yellow-400/30">
-                                    <h4 className="font-bold text-white text-xl mb-4">📊 ملخص التكلفة {getDurationLabel()}</h4>
+                                    <h4 className="font-bold text-white text-xl mb-4">📊 ملخص التكلفة الشهرية</h4>
                                     <div className="space-y-3">
                                         {includeContentCreation && (
                                             <div className="flex justify-between text-white">
                                                 <span>صناعة المحتوى:</span>
-                                                <span>{pricing.contentCreationMin.toLocaleString()} - {pricing.contentCreationMax.toLocaleString()} ج.م</span>
+                                                <span>{pricing.contentCreationMin?.toLocaleString()} - {pricing.contentCreationMax?.toLocaleString()} ج.م</span>
                                             </div>
                                         )}
-                                        <div className="flex justify-between text-white">
-                                            <span>إدارة الصفحة ({managementHours} ساعات/يوم):</span>
-                                            <span>{pricing.managementMinPerDay.toLocaleString()} - {pricing.managementMaxPerDay.toLocaleString()} ج.م/يوم</span>
-                                        </div>
-                                        <div className="flex justify-between text-white">
-                                            <span>المنشورات ({postsCount} منشور):</span>
-                                            <span>{pricing.postsTotal.toLocaleString()} ج.م</span>
-                                        </div>
-                                        <div className="flex justify-between text-white">
-                                            <span>الريلز ({reelsCount} ريل):</span>
-                                            <span>{pricing.reelsTotal.toLocaleString()} ج.م</span>
-                                        </div>
+                                        {includeManagement && (
+                                            <div className="flex justify-between text-white">
+                                                <span>إدارة الصفحة (8 ساعات/يوم):</span>
+                                                <span>{pricing.managementPrice?.toLocaleString()} ج.م/شهر</span>
+                                            </div>
+                                        )}
+                                        {pricing.isPackage ? (
+                                            <div className="flex justify-between text-white">
+                                                <span>{packages[selectedPackage].name} ({packages[selectedPackage].posts} منشور + {packages[selectedPackage].reels} ريل):</span>
+                                                <span>{pricing.packagePrice?.toLocaleString()} ج.م</span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="flex justify-between text-white">
+                                                    <span>المنشورات ({postsCount} منشور × 250 ج.م):</span>
+                                                    <span>{pricing.postsTotal?.toLocaleString()} ج.م</span>
+                                                </div>
+                                                <div className="flex justify-between text-white">
+                                                    <span>الريلز ({reelsCount} ريل × 250 ج.م):</span>
+                                                    <span>{pricing.reelsTotal?.toLocaleString()} ج.م</span>
+                                                </div>
+                                            </>
+                                        )}
                                         <hr className="border-white/20" />
                                         <div className="flex justify-between text-white text-xl font-bold">
-                                            <span>الإجمالي {getDurationLabel()}:</span>
-                                            <span className="text-yellow-300">{pricing.minTotal.toLocaleString()} - {pricing.maxTotal.toLocaleString()} ج.م</span>
+                                            <span>الإجمالي الشهري:</span>
+                                            <span className="text-yellow-300">{pricing.minTotal?.toLocaleString()} - {pricing.maxTotal?.toLocaleString()} ج.م</span>
                                         </div>
                                     </div>
                                 </div>
